@@ -30,20 +30,20 @@
 ### Arsitektur Aplikasi
 ```bash
 src/
-├── app.module.ts
-├── main.ts
-├── data-source.ts
-├── entities/
-│ ├── user.entity.ts
-│ ├── role.entity.ts
-│ └── token.entity.ts
+├── app.module.ts # Modul utama NestJS
+├── main.ts # Entry point aplikasi
+├── data-source.ts # Konfigurasi koneksi database
+├── entities/ # Folder entitas TypeORM
+│ ├── user.entity.ts # Entitas User
+│ ├── role.entity.ts # Entitas Role
+│ └── token.entity.ts # Entitas Token
 ├── modules/
-│ └── auth/
+│ └── auth/ # Modul autentikasi
 │ ├── auth.controller.ts
 │ ├── auth.module.ts
 │ └── auth.service.ts
 └── seeds/
-└── seed.ts
+└── seed.ts # Script seeding data awal
 ```
 
 ```bash
