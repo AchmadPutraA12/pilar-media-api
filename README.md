@@ -206,13 +206,6 @@ Authorization: Bearer <token>
 
 ---
 
-## 🧾 License
-
-Distributed under the **MIT License**.  
-See [`LICENSE`](LICENSE) for more information.
-
----
-
 <p align="center">
   <b>Developed by <a href="https://github.com/AchmadPutraA12" target="_blank">Achmad Putra Arifky</a> 🧑‍💻</b>
 </p>
