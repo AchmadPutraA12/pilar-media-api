@@ -22,7 +22,6 @@ export default async function seedUsers(dataSource: DataSource) {
         role_id: 2,
       },
     ]);
-    console.log('✅ Users seeded successfully!');
   } else {
     console.log('ℹ️ Users already exist, skipping...');
   }

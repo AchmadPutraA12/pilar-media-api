@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Role } from './role.entity';
 import { Token } from './token.entity';
+import { JobOrder } from './job-order.entity';
 
 @Entity('users')
 export class User {
@@ -38,4 +39,7 @@ export class User {
 
     @OneToMany(() => Token, (token) => token.user)
     tokens: Token[];
+
+    @OneToMany(() => JobOrder, (jobOrder) => jobOrder.driver)
+    jobOrders: JobOrder[];
 }

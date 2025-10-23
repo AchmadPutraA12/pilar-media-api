@@ -102,7 +102,7 @@ npx typeorm-ts-node-commonjs migration:run -d src/data-source.ts
 ### 🌱 Menjalankan Seeder
 
 ```bash
-npx ts-node src/seeds/seed.ts
+npx ts-node src/database/seeds/seed-job-orders.ts
 ```
 
 Seeder ini akan menambahkan data default:
