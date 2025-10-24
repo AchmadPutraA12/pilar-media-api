@@ -8,7 +8,7 @@ import { User } from '../../entities/user.entity';
 import { Role } from '../../entities/role.entity';
 
 export async function seedJobOrders(dataSource: DataSource) {
-    const { faker } = await import('@faker-js/faker');
+    const { fakerID_ID: faker } = await import('@faker-js/faker');
 
     const statusRepo = dataSource.getRepository(StatusJobOrder);
     const vehicleRepo = dataSource.getRepository(Vehicle);
@@ -35,8 +35,8 @@ export async function seedJobOrders(dataSource: DataSource) {
     const vehicles: Vehicle[] = [];
     for (let i = 0; i < 10; i++) {
         const v = vehicleRepo.create({
-            nama_kendaraan: `Vehicle-${i + 1}`,
-            plate_number: `B${faker.number.int({ min: 1000, max: 9999 })}${faker.string.alpha({ casing: 'upper', length: 2 })}`,
+            nama_kendaraan: `Kendaraan-${i + 1}`,
+            plate_number: `B ${faker.number.int({ min: 1000, max: 9999 })} ${faker.string.alpha({ length: 2, casing: 'upper' })}`,
             warna: faker.color.human(),
             type: faker.helpers.arrayElement(vehicleTypes),
             capacity: Number(faker.number.float({ min: 1000, max: 10000, fractionDigits: 2 })),
@@ -57,7 +57,15 @@ export async function seedJobOrders(dataSource: DataSource) {
         drivers.push(await userRepo.save(driver));
     }
 
-    const jobOrders: JobOrder[] = [];
+    const cityData = [
+        { province: 'DKI Jakarta', city: 'Jakarta Selatan', lat: -6.2607, lng: 106.8106, city_id: 152 },
+        { province: 'Jawa Barat', city: 'Bandung', lat: -6.9175, lng: 107.6191, city_id: 23 },
+        { province: 'Jawa Tengah', city: 'Semarang', lat: -6.9667, lng: 110.4167, city_id: 39 },
+        { province: 'DI Yogyakarta', city: 'Yogyakarta', lat: -7.7956, lng: 110.3695, city_id: 501 },
+        { province: 'Jawa Timur', city: 'Surabaya', lat: -7.2575, lng: 112.7521, city_id: 114 },
+        { province: 'Banten', city: 'Tangerang', lat: -6.1783, lng: 106.6319, city_id: 151 },
+    ];
+
     for (let i = 0; i < 30; i++) {
         const randomStatus = faker.helpers.arrayElement(statusEntities);
         const randomDriver = faker.helpers.arrayElement(drivers);
@@ -76,7 +84,6 @@ export async function seedJobOrders(dataSource: DataSource) {
         });
 
         const savedJob = await jobRepo.save(jobOrder);
-        jobOrders.push(savedJob);
 
         const manifestCount = faker.number.int({ min: 2, max: 6 });
         for (let j = 0; j < manifestCount; j++) {
@@ -91,27 +98,42 @@ export async function seedJobOrders(dataSource: DataSource) {
             await manifestRepo.save(manifest);
         }
 
-        const pickup = new Location();
-        pickup.jobOrder = savedJob;
-        pickup.type = 'pickup';
-        pickup.address = faker.location.streetAddress();
-        pickup.lat = faker.location.latitude().toString();
-        pickup.lng = faker.location.longitude().toString();
-        pickup.province = 'DKI Jakarta';
-        pickup.city = 'Jakarta';
-        pickup.district = faker.location.city();
+        const pickupCity = faker.helpers.arrayElement(cityData);
+        let destinationCity = faker.helpers.arrayElement(cityData);
+        while (destinationCity.city === pickupCity.city) {
+            destinationCity = faker.helpers.arrayElement(cityData);
+        }
 
-        const destination = new Location();
-        destination.jobOrder = savedJob;
-        destination.type = 'destination';
-        destination.address = faker.location.streetAddress();
-        destination.lat = faker.location.latitude().toString();
-        destination.lng = faker.location.longitude().toString();
-        destination.province = 'Jawa Barat';
-        destination.city = faker.location.city();
-        destination.district = faker.location.city();
+        const pickup = locationRepo.create({
+            jobOrder: savedJob,
+            type: 'pickup',
+            address: `${faker.location.streetAddress()}, ${pickupCity.city}`,
+            province: pickupCity.province,
+            city: pickupCity.city,
+            district: faker.location.city(),
+            lat: (pickupCity.lat + faker.number.float({ min: -0.02, max: 0.02 })).toFixed(6),
+            lng: (pickupCity.lng + faker.number.float({ min: -0.02, max: 0.02 })).toFixed(6),
+            province_id: 0,
+            city_id: pickupCity.city_id,
+            district_id: 0,
+        });
 
-        await locationRepo.save(pickup);
-        await locationRepo.save(destination);
+        const destination = locationRepo.create({
+            jobOrder: savedJob,
+            type: 'destination',
+            address: `${faker.location.streetAddress()}, ${destinationCity.city}`,
+            province: destinationCity.province,
+            city: destinationCity.city,
+            district: faker.location.city(),
+            lat: (destinationCity.lat + faker.number.float({ min: -0.02, max: 0.02 })).toFixed(6),
+            lng: (destinationCity.lng + faker.number.float({ min: -0.02, max: 0.02 })).toFixed(6),
+            province_id: 0,
+            city_id: destinationCity.city_id,
+            district_id: 0,
+        });
+
+        await locationRepo.save([pickup, destination]);
     }
+
+    console.log('✅ Seeder Job Orders (realistic Indonesia data) selesai');
 }
